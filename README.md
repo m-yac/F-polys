@@ -4,6 +4,8 @@
 
 More detail (including the definitions in `Specializations.hs`) will be added once the pdf is posted.
 
+The file `homfly200c.txt` comes from [this website](http://www.pdmi.ras.ru/~arnsem/dataprog/), which is the result of the paper ["A formula for the HOMFLY polynomial of rational links" by Sergei Duzhin and Mikhail Shkolnikov](https://arxiv.org/abs/1009.1800).
+
 ## Examples
 
 ```{haskell}
