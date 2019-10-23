@@ -2,7 +2,7 @@
 module Data.Polynomial where
 
 import Prelude hiding (Rational,exp)
-import Data.List (foldl', dropWhileEnd, elem, find, sortBy)
+import Data.List (foldl', dropWhileEnd, elem, find, sortBy, maximumBy)
 import Data.Maybe (mapMaybe, fromMaybe)
 import Data.Function (on)
 
@@ -24,15 +24,20 @@ zipExps f = go
 eqExps :: Exps -> Exps -> Bool
 eqExps es es' = and (zipExps (==) es es')
 
-cmpExps :: Exps -> Exps -> Ordering
-cmpExps es es' = fromMaybe EQ (find (/= EQ) (reverse $ zipExps (compare `on` f) es es'))
+-- `cmpExps False` compares exponents so that: x^(-1) < 1 < x < x^2
+-- `cmpExps True`  compares exponents to that: 1 < x < x^(-1) < x^2
+cmpExps :: Bool -> Exps -> Exps -> Ordering
+cmpExps cmpAbs es es' = fromMaybe EQ (find (/= EQ) (reverse $ zipExps (compare `on` (if cmpAbs then f else id)) es es'))
   where f :: Int -> Int
-        f 0 = 0
-        f k | k > 0 = 2*k-1
-            | k < 0 = -2*k
+        f k | k <= 0 = 2*(-k)
+            | k >  0 = 2*k - 1
 
-cmpOne :: Monomial -> Monomial -> Ordering
-cmpOne m m' = cmpExps (snd m) (snd m')
+-- (see `cmpExps`)
+cmpOne :: Bool -> Monomial -> Monomial -> Ordering
+cmpOne b m m' = cmpExps b (snd m) (snd m')
+
+leadingTerm :: RawPoly -> Monomial
+leadingTerm f = maximumBy (cmpOne False) f
 
 
 -- Reducing exponent lists, Monomials, and RawPolys to normal forms
@@ -62,7 +67,7 @@ reduce xs = [] `factorIn` xs
 
 -- Orders the terms of a polynomial according to their exponents
 sortPoly :: RawPoly -> RawPoly
-sortPoly = sortBy cmpOne
+sortPoly = sortBy (cmpOne True)
 
 
 -- Algebraic operations on Monomials and RawPolys
@@ -110,7 +115,10 @@ subst ss = foldl' (\h m -> h `factorIn` (substOne m)) []
 -- A list of variable names and denominators (see example below) for a RawPoly
 --  e.g. [('a',1),('b',-2)] means [(1,[1]),(1,[0,1]),(1,[0,2])] should be displayed as 'a + b^(-1/2) + b^(-1)'
 type PolyVars = [(Char,Int)]
-data WithVars rt = Poly { vars :: PolyVars, raw :: rt } deriving (Functor)
+data WithVars t = Poly PolyVars t deriving (Functor)
+
+raw :: WithVars t -> t
+raw (Poly _ x) = x
 
 -- A polynomial is a RawPoly with variable information
 type Poly = WithVars RawPoly

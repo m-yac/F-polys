@@ -8,6 +8,7 @@ import qualified Data.Set as Set
 
 import Data.RatioInfty
 import Data.ContinuedFraction
+import Data.Polynomial
 
 deleteNth :: Int -> [a] -> [a]
 deleteNth n xs = let (a, b) = splitAt n xs
@@ -73,6 +74,14 @@ type OrderIdeal = [Int]
 
 ideals :: Poset -> [OrderIdeal]
 ideals ps = map (map (\i -> labels ps !! i)) . sortOn length . Set.toList . Set.map Set.toList $ idealsSet (adj ps)
+
+
+-- F-polynomial specializations
+
+type FPolySpecialization = (PolyVars, Int -> RawPoly)
+
+specialize :: FPolySpecialization -> [OrderIdeal] -> Poly
+specialize (vs,f) fpoly = Poly vs (reduce $ concatMap (foldl' mult [(1,[])] . map f) fpoly)
 
 
 -- Drawing a path poset
