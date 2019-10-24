@@ -1,8 +1,8 @@
 # Cluster Algebras and the HOMFLY Polynomial
 
-### Companion code to [this paper]().
+### Companion code to [this paper](https://arxiv.org/abs/1910.10267).
 
-This code is meant to be used in an interactive session. Try it out [here]()! (or clone this repo and run `ghci Main.hs`)
+This code is meant to be used in an interactive session. Try it out [here](https://repl.it/@m_yac/FPolys)! (or clone this repo and run `ghci Main.hs`)
 
 The file `homfly200c.txt` comes from [this website](http://www.pdmi.ras.ru/~arnsem/dataprog/), which is the result of the paper ["A formula for the HOMFLY polynomial of rational links" by Sergei Duzhin and Mikhail Shkolnikov](https://arxiv.org/abs/1009.1800).
 
@@ -11,6 +11,8 @@ The file `homfly200c.txt` comes from [this website](http://www.pdmi.ras.ru/~arns
 ```haskell
 > evenCF (38/11)
 [4,-2,6]
+> quo [3,7]
+22/7
 ```
 ```haskell
 > poset [2,3,-4,2,3,1]
@@ -67,7 +69,7 @@ Alexander Polynomial:    - 4t^(1/2) + 4t^(-1/2) + 2t^(3/2) - 2t^(-3/2)
 (sgn(c0)t^e0 = t^(3/2), m[..] = t^(3/2))
 ```
 
-Note that sometimes the values of `HOMFLY.lookup` and `HOMFLY.msF` may not look identical, e.g.
+Note that sometimes the values of `HOMFLY.lookup` and `HOMFLY.msF` may not be evidently equal, e.g.
 ```haskell
 > checkHOMFLY [2,2]
 Even CF: [2,2] = 5/2
@@ -79,4 +81,12 @@ Specialized F-poly:      1 + l^2 w^(-1) - q^(-1) - l^2 q^(-1) w^(-1) + l^4 w^(-1
 Normalized Spec. F-poly: l^(-2) q^(1/2) z^(-1) - q^(1/2) z^(-1) - q + 2 - l^(-2) q^(-1/2) z^(-1) + q^(-1/2) z^(-1) - q^(-1) + l^2
 HOMFLY Polynomial:       l^(-2) + 1 + l^2 - q - q^(-1)
 ```
-But, using the fact that `z = q^(1/2) - q^(-1/2)`, a computer algebra system can do the rest (e.g. Wolfram|Alpha can do it for [this case](https://www.wolframalpha.com/input/?i=simplify+l%5E%28-2%29+q%5E%281%2F2%29+z%5E%28-1%29+-+q%5E%281%2F2%29+z%5E%28-1%29+-+q+%2B+2+-+l%5E%28-2%29+q%5E%28-1%2F2%29+z%5E%28-1%29+%2B+q%5E%28-1%2F2%29+z%5E%28-1%29+-+q%5E%28-1%29+%2B+l%5E2%2C+z+%3D+q%5E%281%2F2%29+-+q%5E%28-1%2F2%29)).
+But, using the fact that `z = q^(1/2) - q^(-1/2)`, a computer algebra system can do the rest (e.g. Wolfram|Alpha [can show that both polynomials above are the same](https://www.wolframalpha.com/input/?i=simplify+l%5E%28-2%29+q%5E%281%2F2%29+z%5E%28-1%29+-+q%5E%281%2F2%29+z%5E%28-1%29+-+q+%2B+2+-+l%5E%28-2%29+q%5E%28-1%2F2%29+z%5E%28-1%29+%2B+q%5E%28-1%2F2%29+z%5E%28-1%29+-+q%5E%28-1%29+%2B+l%5E2%2C+z+%3D+q%5E%281%2F2%29+-+q%5E%28-1%2F2%29)). The following *Mathematica* command is helpful:
+```Mathematica
+ESR[f_] := Expand[Simplify[f /. z -> (q^(1/2) - q^(-1/2))]];
+```
+
+Haskell will assume fractions typed at the command line are floating point numbers unless it is otherwise specified (e.g. `3/2` gives `1.5`). To use the `Rational` class defined in `Data/RatioInfty` instead, type:
+```haskell
+> default (Rational)
+```
